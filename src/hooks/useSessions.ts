@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Session } from "@/types/sessions";
 
-// Mock data for sessions
+// Mock data for sessions with proper date format
 const mockSessions: Session[] = [
   {
     id: 1,

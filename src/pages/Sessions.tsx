@@ -8,6 +8,7 @@ import TabSelector from "@/components/sessions/TabSelector";
 import SessionList from "@/components/sessions/SessionList";
 import SessionDetails from "@/components/sessions/SessionDetails";
 import SessionAnalytics from "@/components/sessions/SessionAnalytics";
+import SessionCalendar from "@/components/sessions/SessionCalendar";
 import { useSessions } from "@/hooks/useSessions";
 import { Session } from "@/types/sessions";
 
@@ -26,6 +27,7 @@ const Sessions = () => {
   const [showSessionDetails, setShowSessionDetails] = useState(false);
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [showAnalytics, setShowAnalytics] = useState(false);
+  const [viewMode, setViewMode] = useState<"list" | "calendar">("list");
   
   // View session details
   const handleViewSession = (session: Session) => {
@@ -59,6 +61,12 @@ const Sessions = () => {
             </div>
             <div className="flex gap-2 mt-4 md:mt-0">
               <button
+                onClick={() => setViewMode(viewMode === "list" ? "calendar" : "list")}
+                className="text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 rounded-md px-4 py-2 transition-colors"
+              >
+                {viewMode === "list" ? "Calendar View" : "List View"}
+              </button>
+              <button
                 onClick={() => setShowAnalytics(!showAnalytics)}
                 className="text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 rounded-md px-4 py-2 transition-colors"
               >
@@ -84,12 +92,20 @@ const Sessions = () => {
           {/* Tabs Component */}
           <TabSelector activeTab={activeTab} onTabChange={setActiveTab} />
           
-          {/* Sessions List Component */}
-          <SessionList 
-            sessions={filteredSessions}
-            onViewSession={handleViewSession}
-            onAcceptSession={handleAcceptWithNotification}
-          />
+          {/* Sessions List or Calendar View Component */}
+          {viewMode === "list" ? (
+            <SessionList 
+              sessions={filteredSessions}
+              onViewSession={handleViewSession}
+              onAcceptSession={handleAcceptWithNotification}
+            />
+          ) : (
+            <SessionCalendar 
+              sessions={filteredSessions}
+              onViewSession={handleViewSession}
+              onAcceptSession={handleAcceptWithNotification}
+            />
+          )}
         </div>
       </main>
       
