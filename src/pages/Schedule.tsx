@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { format, addDays, startOfWeek, addWeeks, subWeeks, isSameDay, parse } from "date-fns";
 import { 
   ChevronLeft, 
@@ -8,9 +8,11 @@ import {
   Calendar,
   Clock,
   CheckCircle2,
-  X
+  X,
+  Edit
 } from "lucide-react";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { 
   Popover,
@@ -35,19 +37,12 @@ import {
 import Header from "@/components/Header";
 import AnimatedCard from "@/components/AnimatedCard";
 
-// Mock data
-const initialAvailabilitySlots = [
-  { day: "Monday", start: "09:00", end: "11:00" },
-  { day: "Monday", start: "13:00", end: "15:00" },
-  { day: "Wednesday", start: "10:00", end: "12:00" },
-  { day: "Thursday", start: "14:00", end: "16:00" },
-  { day: "Friday", start: "15:00", end: "17:00" },
-];
-
-const scheduledSessions = [
+// Mock data for scheduled sessions
+const mockScheduledSessions = [
   { 
     id: 1, 
     studentName: "Emma Davis", 
+    date: "2023-10-10",
     day: "Monday", 
     start: "10:00", 
     end: "11:00",
@@ -56,10 +51,20 @@ const scheduledSessions = [
   { 
     id: 2, 
     studentName: "Thomas Wright", 
+    date: "2023-10-12",
     day: "Wednesday", 
     start: "11:00", 
     end: "12:00",
     subject: "Physics" 
+  },
+  { 
+    id: 3, 
+    studentName: "James Wilson",
+    date: "2023-10-13", 
+    day: "Thursday", 
+    start: "14:00", 
+    end: "15:00",
+    subject: "English Literature" 
   },
 ];
 
@@ -76,12 +81,28 @@ const Schedule = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [weekStart, setWeekStart] = useState(startOfWeek(currentDate, { weekStartsOn: 1 }));
   const [showAddDialog, setShowAddDialog] = useState(false);
-  const [availabilitySlots, setAvailabilitySlots] = useState(initialAvailabilitySlots);
   const [newSlot, setNewSlot] = useState({
     day: "Monday",
     start: "09:00",
     end: "10:00"
   });
+  const [availabilitySlots, setAvailabilitySlots] = useState<any[]>([]);
+  const [scheduledSessions, setScheduledSessions] = useState(mockScheduledSessions);
+  const [selectedSession, setSelectedSession] = useState<any>(null);
+  const [showSessionDetails, setShowSessionDetails] = useState(false);
+  
+  // Load saved availability from localStorage on component mount
+  useEffect(() => {
+    const savedAvailability = localStorage.getItem("tutorAvailability");
+    if (savedAvailability) {
+      try {
+        const parsed = JSON.parse(savedAvailability);
+        setAvailabilitySlots(parsed);
+      } catch (error) {
+        console.error("Error parsing saved availability:", error);
+      }
+    }
+  }, []);
 
   // Navigate to previous week
   const previousWeek = () => {
@@ -117,7 +138,9 @@ const Schedule = () => {
     }
 
     // Add the new slot
-    setAvailabilitySlots([...availabilitySlots, { ...newSlot }]);
+    const updatedSlots = [...availabilitySlots, { ...newSlot }];
+    setAvailabilitySlots(updatedSlots);
+    localStorage.setItem("tutorAvailability", JSON.stringify(updatedSlots));
     setShowAddDialog(false);
     toast.success("Availability slot added successfully");
   };
@@ -127,27 +150,43 @@ const Schedule = () => {
     const newSlots = [...availabilitySlots];
     newSlots.splice(index, 1);
     setAvailabilitySlots(newSlots);
+    localStorage.setItem("tutorAvailability", JSON.stringify(newSlots));
     toast.success("Availability slot removed");
   };
 
+  // View details of a scheduled session
+  const viewSessionDetails = (session: any) => {
+    setSelectedSession(session);
+    setShowSessionDetails(true);
+  };
+
   // Check if a session is scheduled at a specific day and time
-  const getSessionAtSlot = (day: string, time: string) => {
+  const getSessionAtSlot = (dayDate: Date, time: string) => {
+    const formattedDate = format(dayDate, "yyyy-MM-dd");
     return scheduledSessions.find(
       session => 
-        session.day === day && 
+        session.date === formattedDate && 
         time >= session.start && 
         time < session.end
     );
   };
 
   // Check if the tutor is available at a specific day and time
-  const isAvailableAt = (day: string, time: string) => {
-    return availabilitySlots.some(
-      slot => 
-        slot.day === day && 
-        time >= slot.start && 
-        time < slot.end
-    );
+  const isAvailableAt = (dayDate: Date, time: string) => {
+    const dayName = daysOfWeek[dayDate.getDay() === 0 ? 6 : dayDate.getDay() - 1];
+    
+    return availabilitySlots.some(slot => {
+      // Check for one-time availability (stored as YYYY-MM-DD)
+      if (slot.day.includes('-')) {
+        return slot.day === format(dayDate, "yyyy-MM-dd") && 
+               time >= slot.start && 
+               time < slot.end;
+      }
+      // Check for recurring availability (stored as day name)
+      return slot.day === dayName && 
+             time >= slot.start && 
+             time < slot.end;
+    });
   };
 
   // Format date range for the week
@@ -155,6 +194,11 @@ const Schedule = () => {
     const endOfWeek = addDays(weekStart, 6);
     return `${format(weekStart, "MMM d")} - ${format(endOfWeek, "MMM d, yyyy")}`;
   };
+
+  // Generate the days of the current week
+  const currentWeekDays = Array.from({ length: 7 }, (_, i) => 
+    addDays(weekStart, i)
+  );
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -169,10 +213,16 @@ const Schedule = () => {
                 Manage your tutoring availability and view scheduled sessions
               </p>
             </div>
-            <div className="mt-4 md:mt-0">
-              <Button onClick={() => setShowAddDialog(true)}>
+            <div className="mt-4 md:mt-0 flex flex-wrap gap-2">
+              <Button variant="outline" onClick={() => setShowAddDialog(true)}>
                 <Plus className="mr-2 h-4 w-4" />
-                Add Availability
+                Quick Add
+              </Button>
+              <Button asChild>
+                <Link to="/create-schedule">
+                  <Edit className="mr-2 h-4 w-4" />
+                  Manage Schedule
+                </Link>
               </Button>
             </div>
           </div>
@@ -200,12 +250,13 @@ const Schedule = () => {
                 </div>
                 
                 {/* Day columns */}
-                {daysOfWeek.map((day, index) => (
+                {currentWeekDays.map((day, index) => (
                   <div 
-                    key={day} 
+                    key={index} 
                     className="col-span-1 font-medium text-center bg-secondary/20 py-2"
                   >
-                    {day}
+                    <div>{daysOfWeek[day.getDay() === 0 ? 6 : day.getDay() - 1]}</div>
+                    <div className="text-xs opacity-70">{format(day, "MMM d")}</div>
                   </div>
                 ))}
                 
@@ -218,7 +269,7 @@ const Schedule = () => {
                     </div>
                     
                     {/* Slots for each day */}
-                    {daysOfWeek.map((day, dayIndex) => {
+                    {currentWeekDays.map((day, dayIndex) => {
                       const session = getSessionAtSlot(day, time);
                       const isAvailable = isAvailableAt(day, time);
                       
@@ -227,7 +278,8 @@ const Schedule = () => {
                           key={`${day}-${time}`} 
                           className={`col-span-1 py-3 px-2 border-t relative ${
                             isAvailable ? "bg-primary/10" : ""
-                          }`}
+                          } ${session ? "cursor-pointer" : ""}`}
+                          onClick={() => session && viewSessionDetails(session)}
                         >
                           {session && time === session.start && (
                             <div className="absolute inset-1 bg-primary/20 rounded-md p-2 text-xs">
@@ -375,6 +427,52 @@ const Schedule = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Session Details Dialog */}
+      {selectedSession && (
+        <Dialog open={showSessionDetails} onOpenChange={setShowSessionDetails}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>Session Details</DialogTitle>
+              <DialogDescription>
+                Information about your scheduled tutoring session.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-medium mb-1">Student</p>
+                  <p>{selectedSession.studentName}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium mb-1">Subject</p>
+                  <p>{selectedSession.subject}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium mb-1">Date</p>
+                  <p>{format(parse(selectedSession.date, 'yyyy-MM-dd', new Date()), 'MMM d, yyyy')}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium mb-1">Time</p>
+                  <p>{selectedSession.start} - {selectedSession.end}</p>
+                </div>
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" onClick={() => setShowSessionDetails(false)}>
+                  Close
+                </Button>
+                <Button asChild>
+                  <Link to="/sessions">View in Sessions</Link>
+                </Button>
+              </div>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 };
