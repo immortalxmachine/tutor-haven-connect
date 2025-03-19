@@ -7,12 +7,14 @@ import SearchAndFilter from "@/components/sessions/SearchAndFilter";
 import TabSelector from "@/components/sessions/TabSelector";
 import SessionList from "@/components/sessions/SessionList";
 import SessionDetails from "@/components/sessions/SessionDetails";
+import SessionAnalytics from "@/components/sessions/SessionAnalytics";
 import { useSessions } from "@/hooks/useSessions";
 import { Session } from "@/types/sessions";
 
 const Sessions = () => {
   // Use the custom hook for session management
   const { 
+    sessions,
     filteredSessions,
     searchQuery,
     setSearchQuery,
@@ -23,6 +25,7 @@ const Sessions = () => {
 
   const [showSessionDetails, setShowSessionDetails] = useState(false);
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
+  const [showAnalytics, setShowAnalytics] = useState(false);
   
   // View session details
   const handleViewSession = (session: Session) => {
@@ -54,7 +57,22 @@ const Sessions = () => {
                 Manage your tutoring sessions and requests
               </p>
             </div>
+            <div className="flex gap-2 mt-4 md:mt-0">
+              <button
+                onClick={() => setShowAnalytics(!showAnalytics)}
+                className="text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20 rounded-md px-4 py-2 transition-colors"
+              >
+                {showAnalytics ? "Hide Analytics" : "Show Analytics"}
+              </button>
+            </div>
           </div>
+          
+          {/* Analytics Component - Conditionally Rendered */}
+          {showAnalytics && (
+            <div className="mb-8">
+              <SessionAnalytics sessions={sessions} />
+            </div>
+          )}
           
           {/* Search and Filter Component */}
           <SearchAndFilter 

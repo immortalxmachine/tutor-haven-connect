@@ -129,7 +129,7 @@ export function useSessions() {
     // Update the sessions array with the new status
     const updatedSessions = sessions.map(session => 
       session.id === sessionId 
-        ? { ...session, status: "upcoming" } 
+        ? { ...session, status: "upcoming" as const } 
         : session
     );
     
