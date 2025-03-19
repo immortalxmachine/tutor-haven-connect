@@ -5,7 +5,7 @@ export interface SessionFeedback {
 }
 
 export interface Session {
-  id: number;
+  id: string;
   studentName: string;
   subject: string;
   topic: string;
@@ -15,4 +15,5 @@ export interface Session {
   notes: string;
   communicationMode: "text" | "voice" | "video";
   feedback?: SessionFeedback;
+  tutor_id?: string;
 }

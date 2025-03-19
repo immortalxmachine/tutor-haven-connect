@@ -4,11 +4,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import AnimatedCard from "@/components/AnimatedCard";
 import { Calendar, Clock, UserCircle2 } from "lucide-react";
+import { Session } from "@/types/sessions";
 
 interface SessionCardProps {
-  session: any;
-  onViewDetails: (session: any) => void;
-  onAcceptSession: (sessionId: number) => void;
+  session: Session;
+  onViewDetails: (session: Session) => void;
+  onAcceptSession: (sessionId: string) => void;
 }
 
 export const StatusBadge = ({ status }: { status: string }) => {

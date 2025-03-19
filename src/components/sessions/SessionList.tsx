@@ -1,11 +1,12 @@
 
 import React from "react";
 import SessionCard from "./SessionCard";
+import { Session } from "@/types/sessions";
 
 interface SessionListProps {
-  sessions: any[];
-  onViewSession: (session: any) => void;
-  onAcceptSession: (sessionId: number) => void;
+  sessions: Session[];
+  onViewSession: (session: Session) => void;
+  onAcceptSession: (sessionId: string) => void;
 }
 
 const SessionList: React.FC<SessionListProps> = ({ 
@@ -23,7 +24,7 @@ const SessionList: React.FC<SessionListProps> = ({
 
   return (
     <div className="space-y-4">
-      {sessions.map((session, index) => (
+      {sessions.map((session) => (
         <SessionCard
           key={session.id}
           session={session}

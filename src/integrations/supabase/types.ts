@@ -108,6 +108,54 @@ export type Database = {
         }
         Relationships: []
       }
+      sessions: {
+        Row: {
+          communication_mode: string
+          created_at: string
+          date: string
+          feedback: Json | null
+          id: string
+          notes: string | null
+          status: string
+          student_name: string
+          subject: string
+          time: string
+          topic: string
+          tutor_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          communication_mode: string
+          created_at?: string
+          date: string
+          feedback?: Json | null
+          id?: string
+          notes?: string | null
+          status: string
+          student_name: string
+          subject: string
+          time: string
+          topic: string
+          tutor_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          communication_mode?: string
+          created_at?: string
+          date?: string
+          feedback?: Json | null
+          id?: string
+          notes?: string | null
+          status?: string
+          student_name?: string
+          subject?: string
+          time?: string
+          topic?: string
+          tutor_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       study_materials: {
         Row: {
           created_at: string
