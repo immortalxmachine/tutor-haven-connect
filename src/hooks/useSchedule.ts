@@ -1,6 +1,6 @@
-
 import { useState, useEffect } from "react";
-import { startOfWeek, addWeeks, subWeeks, toast } from "date-fns";
+import { startOfWeek, addWeeks, subWeeks } from "date-fns";
+import { toast } from "@/hooks/use-toast";
 
 // Mock data for scheduled sessions
 const mockScheduledSessions = [
@@ -92,7 +92,11 @@ export const useSchedule = () => {
   const addAvailabilitySlot = () => {
     // Validate that end time is after start time
     if (newSlot.start >= newSlot.end) {
-      toast.error("End time must be after start time");
+      toast({
+        title: "Invalid time range",
+        description: "End time must be after start time",
+        variant: "destructive"
+      });
       return;
     }
 
@@ -105,7 +109,11 @@ export const useSchedule = () => {
     );
 
     if (isOverlapping) {
-      toast.error("This slot overlaps with an existing availability");
+      toast({
+        title: "Overlapping slot",
+        description: "This slot overlaps with an existing availability",
+        variant: "destructive"
+      });
       return;
     }
 
@@ -114,7 +122,10 @@ export const useSchedule = () => {
     setAvailabilitySlots(updatedSlots);
     localStorage.setItem("tutorAvailability", JSON.stringify(updatedSlots));
     setShowAddDialog(false);
-    toast.success("Availability slot added successfully");
+    toast({
+      title: "Success",
+      description: "Availability slot added successfully"
+    });
   };
 
   // Remove an availability slot
@@ -123,7 +134,10 @@ export const useSchedule = () => {
     newSlots.splice(index, 1);
     setAvailabilitySlots(newSlots);
     localStorage.setItem("tutorAvailability", JSON.stringify(newSlots));
-    toast.success("Availability slot removed");
+    toast({
+      title: "Success",
+      description: "Availability slot removed"
+    });
   };
 
   // View details of a scheduled session
