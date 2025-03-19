@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import Schedule from "./pages/Schedule";
 import CreateSchedule from "./pages/CreateSchedule";
 import Sessions from "./pages/Sessions";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/schedule" element={<Schedule />} />
           <Route path="/create-schedule" element={<CreateSchedule />} />
           <Route path="/sessions" element={<Sessions />} />
+          <Route path="/profile" element={<Profile />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

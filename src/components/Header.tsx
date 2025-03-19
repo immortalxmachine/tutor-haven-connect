@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
@@ -8,7 +7,6 @@ import {
   LogOut, 
   Calendar, 
   BookOpen, 
-  Star, 
   Settings,
   MessageSquare
 } from "lucide-react";
