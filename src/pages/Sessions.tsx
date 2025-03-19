@@ -131,13 +131,14 @@ const mockSessions = [
 const Sessions = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [sessions, setSessions] = useState(mockSessions);
   const [filteredSessions, setFilteredSessions] = useState(mockSessions);
   const [showSessionDetails, setShowSessionDetails] = useState(false);
   const [selectedSession, setSelectedSession] = useState<any>(null);
   
   // Filter sessions based on search query and active tab
   useEffect(() => {
-    let filtered = [...mockSessions];
+    let filtered = [...sessions];
     
     // Filter by search query
     if (searchQuery) {
@@ -156,7 +157,7 @@ const Sessions = () => {
     }
     
     setFilteredSessions(filtered);
-  }, [searchQuery, activeTab]);
+  }, [searchQuery, activeTab, sessions]);
   
   // View session details
   const handleViewSession = (session: any) => {
@@ -166,19 +167,22 @@ const Sessions = () => {
   
   // Accept pending session
   const handleAcceptSession = (sessionId: number) => {
-    // Here you would make an API call to update the session status
-    toast.success("Session accepted successfully!");
-    
-    // For demo purposes, update the local state
-    const updatedSessions = mockSessions.map(session => 
+    // Update the sessions array with the new status
+    const updatedSessions = sessions.map(session => 
       session.id === sessionId 
         ? { ...session, status: "upcoming" } 
         : session
     );
     
-    // Close the dialog if open
-    if (showSessionDetails) {
-      setShowSessionDetails(false);
+    // Update state with new sessions array
+    setSessions(updatedSessions);
+    
+    // Show success toast
+    toast.success("Session accepted successfully!");
+    
+    // If selected session is the one being updated, update it too
+    if (selectedSession && selectedSession.id === sessionId) {
+      setSelectedSession({ ...selectedSession, status: "upcoming" });
     }
   };
   
