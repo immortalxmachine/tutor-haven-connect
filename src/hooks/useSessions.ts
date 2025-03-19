@@ -37,7 +37,10 @@ export function useSessions() {
           status: session.status as "upcoming" | "pending" | "completed",
           notes: session.notes || "",
           communicationMode: session.communication_mode as "text" | "voice" | "video",
-          feedback: session.feedback,
+          feedback: session.feedback ? {
+            rating: session.feedback.rating,
+            comment: session.feedback.comment
+          } : undefined,
           tutor_id: session.tutor_id
         }));
         
