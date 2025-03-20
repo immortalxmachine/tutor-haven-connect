@@ -21,7 +21,8 @@ const Sessions = () => {
     setSearchQuery,
     activeTab,
     setActiveTab,
-    handleAcceptSession
+    handleAcceptSession,
+    handleStartSession
   } = useSessions();
 
   const [showSessionDetails, setShowSessionDetails] = useState(false);
@@ -44,6 +45,12 @@ const Sessions = () => {
     if (selectedSession && selectedSession.id === sessionId) {
       setSelectedSession({ ...selectedSession, status: "upcoming" });
     }
+  };
+
+  // Handle start session with toast notification
+  const handleStartWithNotification = (sessionId: number) => {
+    handleStartSession(sessionId);
+    toast.success("Starting session...");
   };
 
   return (
@@ -115,6 +122,7 @@ const Sessions = () => {
         open={showSessionDetails}
         onOpenChange={setShowSessionDetails}
         onAcceptSession={handleAcceptWithNotification}
+        onStartSession={handleStartWithNotification}
       />
     </div>
   );

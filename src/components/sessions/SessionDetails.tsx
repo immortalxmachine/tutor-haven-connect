@@ -10,14 +10,16 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle2, MessageSquare } from "lucide-react";
+import { CheckCircle2, Play } from "lucide-react";
 import { StatusBadge } from "./SessionCard";
+import { Session } from "@/types/sessions";
 
 interface SessionDetailsProps {
-  session: any;
+  session: Session | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAcceptSession: (sessionId: number) => void;
+  onStartSession?: (sessionId: number) => void;
 }
 
 const SessionDetails: React.FC<SessionDetailsProps> = ({
@@ -25,6 +27,7 @@ const SessionDetails: React.FC<SessionDetailsProps> = ({
   open,
   onOpenChange,
   onAcceptSession,
+  onStartSession,
 }) => {
   if (!session) return null;
 
@@ -84,7 +87,7 @@ const SessionDetails: React.FC<SessionDetailsProps> = ({
                 <div className="flex items-center mb-2">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <div key={i} className="text-yellow-500">
-                      {i < session.feedback.rating ? "★" : "☆"}
+                      {i < session.feedback!.rating ? "★" : "☆"}
                     </div>
                   ))}
                   <span className="ml-2 text-sm text-muted-foreground">
@@ -111,9 +114,14 @@ const SessionDetails: React.FC<SessionDetailsProps> = ({
               Accept Session
             </Button>
           )}
-          {session.status === "upcoming" && (
-            <Button>
-              <MessageSquare className="mr-2 h-4 w-4" />
+          {session.status === "upcoming" && onStartSession && (
+            <Button 
+              onClick={() => {
+                onStartSession(session.id);
+                onOpenChange(false);
+              }}
+            >
+              <Play className="mr-2 h-4 w-4" />
               Start Session
             </Button>
           )}

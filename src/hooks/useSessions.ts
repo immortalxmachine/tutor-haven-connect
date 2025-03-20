@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Session } from "@/types/sessions";
+import { Session, SessionFeedback } from "@/types/sessions";
 
 // Mock data for sessions with proper date format
 const mockSessions: Session[] = [
@@ -136,6 +136,15 @@ export function useSessions() {
     // Update state with new sessions array
     setSessions(updatedSessions);
   };
+
+  // Start a session
+  const handleStartSession = (sessionId: number) => {
+    // In a real app, this would navigate to a session room or initiate a call
+    console.log(`Starting session with ID: ${sessionId}`);
+    
+    // For demonstration purposes, we'll just log a message
+    alert(`Session started! In a real app, you would be redirected to a meeting room or chat interface for the session with ID: ${sessionId}`);
+  };
   
   return {
     sessions,
@@ -144,6 +153,7 @@ export function useSessions() {
     setSearchQuery,
     activeTab,
     setActiveTab,
-    handleAcceptSession
+    handleAcceptSession,
+    handleStartSession
   };
 }
