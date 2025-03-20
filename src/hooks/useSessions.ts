@@ -139,11 +139,11 @@ export function useSessions() {
 
   // Start a session
   const handleStartSession = (sessionId: number) => {
-    // In a real app, this would navigate to a session room or initiate a call
-    console.log(`Starting session with ID: ${sessionId}`);
+    // Redirect to Google Meet link
+    window.open("https://meet.google.com/kho-pjuf-hpt", "_blank");
     
-    // For demonstration purposes, we'll just log a message
-    alert(`Session started! In a real app, you would be redirected to a meeting room or chat interface for the session with ID: ${sessionId}`);
+    // Log for debugging
+    console.log(`Starting session with ID: ${sessionId}`);
   };
   
   return {
