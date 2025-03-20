@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { format, startOfWeek, endOfWeek, eachDayOfInterval, isSameDay, addWeeks, subWeeks, parseISO } from "date-fns";
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, LayoutGrid, LayoutList } from "lucide-react";
@@ -22,7 +23,7 @@ import AnimatedCard from "@/components/AnimatedCard";
 interface SessionCalendarProps {
   sessions: Session[];
   onViewSession: (session: Session) => void;
-  onAcceptSession: (sessionId: string) => void;
+  onAcceptSession: (sessionId: number) => void;
 }
 
 const SessionCalendar: React.FC<SessionCalendarProps> = ({ 
@@ -34,13 +35,16 @@ const SessionCalendar: React.FC<SessionCalendarProps> = ({
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [viewType, setViewType] = useState<"week" | "month">("week");
   
+  // Get sessions for the selected date
   const getSessionsForDate = (date: Date) => {
     return sessions.filter((session) => {
+      // Parse the date string to a Date object (assuming format "MMM DD, YYYY")
       const sessionDate = new Date(session.date);
       return isSameDay(sessionDate, date);
     });
   };
   
+  // Get all sessions for the current view (week or month)
   const getSessionsForView = () => {
     if (viewType === "week") {
       const start = startOfWeek(currentDate, { weekStartsOn: 1 });
@@ -52,26 +56,35 @@ const SessionCalendar: React.FC<SessionCalendarProps> = ({
         sessions: getSessionsForDate(day)
       }));
     } else {
+      // For month view, we'll just use the Calendar component
       return [];
     }
   };
   
+  // Navigate to previous week/month
   const handlePreviousView = () => {
     if (viewType === "week") {
       setCurrentDate(subWeeks(currentDate, 1));
+    } else {
+      // For month view, the Calendar component handles navigation
     }
   };
   
+  // Navigate to next week/month
   const handleNextView = () => {
     if (viewType === "week") {
       setCurrentDate(addWeeks(currentDate, 1));
+    } else {
+      // For month view, the Calendar component handles navigation
     }
   };
   
+  // Toggle between week and month view
   const toggleViewType = () => {
     setViewType(viewType === "week" ? "month" : "week");
   };
   
+  // Set a specific date
   const handleSelectDate = (date: Date | undefined) => {
     if (date) {
       setSelectedDate(date);
@@ -79,6 +92,7 @@ const SessionCalendar: React.FC<SessionCalendarProps> = ({
     }
   };
   
+  // Format time from "3:30 PM - 4:30 PM" to "3:30 PM"
   const formatStartTime = (timeRange: string) => {
     return timeRange.split(" - ")[0];
   };
@@ -179,6 +193,7 @@ const SessionCalendar: React.FC<SessionCalendarProps> = ({
                   selected={selectedDate}
                   onSelect={handleSelectDate}
                   className="rounded-md border p-3 pointer-events-auto"
+                  // Add a custom day render to show dots for days with sessions
                   modifiers={{
                     hasSessions: sessions.map(session => new Date(session.date)),
                   }}

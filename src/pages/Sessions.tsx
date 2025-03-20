@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { toast } from "sonner";
 import Header from "@/components/Header";
+
 import SearchAndFilter from "@/components/sessions/SearchAndFilter";
 import TabSelector from "@/components/sessions/TabSelector";
 import SessionList from "@/components/sessions/SessionList";
@@ -10,7 +11,6 @@ import SessionAnalytics from "@/components/sessions/SessionAnalytics";
 import SessionCalendar from "@/components/sessions/SessionCalendar";
 import { useSessions } from "@/hooks/useSessions";
 import { Session } from "@/types/sessions";
-import { Skeleton } from "@/components/ui/skeleton";
 
 const Sessions = () => {
   // Use the custom hook for session management
@@ -21,8 +21,7 @@ const Sessions = () => {
     setSearchQuery,
     activeTab,
     setActiveTab,
-    handleAcceptSession,
-    loading
+    handleAcceptSession
   } = useSessions();
 
   const [showSessionDetails, setShowSessionDetails] = useState(false);
@@ -37,8 +36,9 @@ const Sessions = () => {
   };
   
   // Handle accept session with toast notification
-  const handleAcceptWithNotification = (sessionId: string) => {
+  const handleAcceptWithNotification = (sessionId: number) => {
     handleAcceptSession(sessionId);
+    toast.success("Session accepted successfully!");
     
     // Update selected session if it's the one being accepted
     if (selectedSession && selectedSession.id === sessionId) {
@@ -92,36 +92,19 @@ const Sessions = () => {
           {/* Tabs Component */}
           <TabSelector activeTab={activeTab} onTabChange={setActiveTab} />
           
-          {/* Loading State */}
-          {loading ? (
-            <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="p-6 rounded-lg border">
-                  <div className="flex items-center gap-4">
-                    <Skeleton className="h-12 w-12 rounded-full" />
-                    <div className="space-y-2">
-                      <Skeleton className="h-4 w-40" />
-                      <Skeleton className="h-4 w-60" />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+          {/* Sessions List or Calendar View Component */}
+          {viewMode === "list" ? (
+            <SessionList 
+              sessions={filteredSessions}
+              onViewSession={handleViewSession}
+              onAcceptSession={handleAcceptWithNotification}
+            />
           ) : (
-            /* Sessions List or Calendar View Component */
-            viewMode === "list" ? (
-              <SessionList 
-                sessions={filteredSessions}
-                onViewSession={handleViewSession}
-                onAcceptSession={handleAcceptWithNotification}
-              />
-            ) : (
-              <SessionCalendar 
-                sessions={filteredSessions}
-                onViewSession={handleViewSession}
-                onAcceptSession={handleAcceptWithNotification}
-              />
-            )
+            <SessionCalendar 
+              sessions={filteredSessions}
+              onViewSession={handleViewSession}
+              onAcceptSession={handleAcceptWithNotification}
+            />
           )}
         </div>
       </main>
